@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MapPin, FileImage, Send, AlertCircle, X } from 'lucide-react';
+import { MapPin, FileImage, Send, AlertCircle, X, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface IncidentMedia {
   file: File;
@@ -58,12 +59,22 @@ const Satarknity: React.FC = () => {
   const removeMedia = (index: number) => {
     const updatedMedia = [...media];
     URL.revokeObjectURL(updatedMedia[index].preview);
-    updatedMedia.splice(index, index + 1);
+    updatedMedia.splice(index, 1); // Fixed: This was removing the wrong item
     setMedia(updatedMedia);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if Supabase is configured
+    if (!isSupabaseConfigured()) {
+      toast({
+        title: "Configuration Error",
+        description: "Supabase is not properly configured. Please set up your environment variables.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     // Basic validation
     if (!description.trim()) {
@@ -162,6 +173,30 @@ const Satarknity: React.FC = () => {
     }
   };
 
+  // If Supabase is not configured, show a warning
+  if (!isSupabaseConfigured()) {
+    return (
+      <div className="max-w-2xl mx-auto p-4">
+        <Alert variant="destructive" className="mb-4">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Supabase configuration is missing. Please connect to Supabase to use this feature.
+          </AlertDescription>
+        </Alert>
+        
+        <Card className="border-satarknity-light shadow-lg">
+          <CardHeader>
+            <CardTitle>Community Safety Alert</CardTitle>
+            <CardDescription>
+              Connect to Supabase to enable community safety alerts
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+  
+  // Regular render with the full form
   return (
     <div className="max-w-2xl mx-auto p-4 animate-fade-in">
       <Card className="border-satarknity-light shadow-lg bg-gradient-to-br from-white to-satarknity-softGray">
