@@ -20,15 +20,18 @@ const IncidentList: React.FC = () => {
   const { toast } = useToast();
 
   const fetchIncidents = async (): Promise<Incident[]> => {
+    console.log('Fetching incidents...');
     const { data, error } = await supabase
       .from('satarknity_incidents')
       .select('*')
       .order('created_at', { ascending: false });
     
     if (error) {
+      console.error('Supabase error:', error);
       throw error;
     }
     
+    console.log('Fetched incidents:', data);
     return data || [];
   };
 
