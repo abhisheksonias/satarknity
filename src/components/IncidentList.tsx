@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, MapPin, Clock, Image, Video } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
 interface Incident {
