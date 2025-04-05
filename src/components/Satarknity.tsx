@@ -121,7 +121,7 @@ const Satarknity: React.FC = () => {
           const filePath = `${user.id}/${fileName}`;
           
           const { error: uploadError } = await supabase.storage
-            .from('incident_media')
+            .from('incidentmedia')
             .upload(filePath, item.file);
             
           if (uploadError) {
@@ -130,7 +130,7 @@ const Satarknity: React.FC = () => {
           
           // Get public URL
           const { data: publicUrlData } = supabase.storage
-            .from('incident_media')
+            .from('incidentmedia')
             .getPublicUrl(filePath);
             
           mediaUrls.push(publicUrlData.publicUrl);
