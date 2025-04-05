@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MapPin, FileImage, Send, AlertCircle, X, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import IncidentList from './IncidentList';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -16,7 +16,6 @@ interface IncidentMedia {
   preview: string;
 }
 
-// Create a client for React Query
 const queryClient = new QueryClient();
 
 const SatarknityForm: React.FC = () => {
@@ -29,7 +28,6 @@ const SatarknityForm: React.FC = () => {
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     
-    // Only allow up to 2 files
     if (media.length + e.target.files.length > 2) {
       toast({
         title: "Too many files",
@@ -39,10 +37,8 @@ const SatarknityForm: React.FC = () => {
       return;
     }
 
-    // Process each file
     const newMedia: IncidentMedia[] = [];
     Array.from(e.target.files).forEach(file => {
-      // Check file type
       if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
         toast({
           title: "Invalid file type",
@@ -52,7 +48,6 @@ const SatarknityForm: React.FC = () => {
         return;
       }
 
-      // Create preview
       const preview = URL.createObjectURL(file);
       newMedia.push({ file, preview });
     });
@@ -70,7 +65,6 @@ const SatarknityForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check if Supabase is configured
     if (!isSupabaseConfigured()) {
       toast({
         title: "Configuration Error",
@@ -80,7 +74,6 @@ const SatarknityForm: React.FC = () => {
       return;
     }
     
-    // Basic validation
     if (!description.trim()) {
       toast({
         title: "Missing information",
@@ -102,7 +95,6 @@ const SatarknityForm: React.FC = () => {
     try {
       setIsSubmitting(true);
 
-      // Get current authenticated user
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
@@ -115,7 +107,6 @@ const SatarknityForm: React.FC = () => {
         return;
       }
 
-      // Upload media files if provided
       const mediaUrls: string[] = [];
       
       if (media.length > 0) {
@@ -132,7 +123,6 @@ const SatarknityForm: React.FC = () => {
             throw uploadError;
           }
           
-          // Get public URL
           const { data: publicUrlData } = supabase.storage
             .from('incidentmedia')
             .getPublicUrl(filePath);
@@ -141,7 +131,6 @@ const SatarknityForm: React.FC = () => {
         }
       }
 
-      // Save incident to database
       const { error } = await supabase
         .from('satarknity_incidents')
         .insert({
@@ -153,19 +142,16 @@ const SatarknityForm: React.FC = () => {
 
       if (error) throw error;
 
-      // Show success toast
       toast({
         title: "Alert submitted",
         description: "Your community alert has been submitted successfully",
       });
 
-      // Clear form
       setDescription('');
       setLocation('');
       media.forEach(item => URL.revokeObjectURL(item.preview));
       setMedia([]);
       
-      // Invalidate incidents query to refetch the list after adding a new one
       queryClient.invalidateQueries({ queryKey: ['incidents'] });
 
     } catch (error) {
@@ -194,7 +180,6 @@ const SatarknityForm: React.FC = () => {
       
       <form onSubmit={handleSubmit}>
         <CardContent className="pt-6 space-y-6">
-          {/* Description Input */}
           <div className="space-y-2">
             <Label htmlFor="description" className="flex items-center gap-2">
               <span className="text-satarknity-tertiary">📝</span> Description
@@ -208,7 +193,6 @@ const SatarknityForm: React.FC = () => {
             />
           </div>
 
-          {/* Location Input */}
           <div className="space-y-2">
             <Label htmlFor="location" className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-satarknity-tertiary" /> Location
@@ -222,7 +206,6 @@ const SatarknityForm: React.FC = () => {
             />
           </div>
 
-          {/* Media Upload */}
           <div className="space-y-2">
             <Label htmlFor="media" className="flex items-center gap-2">
               <FileImage className="h-4 w-4 text-satarknity-tertiary" /> Media (Optional, max 2)
@@ -250,7 +233,6 @@ const SatarknityForm: React.FC = () => {
               </span>
             </div>
 
-            {/* Media Preview */}
             {media.length > 0 && (
               <div className="grid grid-cols-2 gap-2 mt-2">
                 {media.map((item, index) => (
@@ -305,12 +287,6 @@ const SatarknityForm: React.FC = () => {
 };
 
 const Satarknity: React.FC = () => {
-  // Check if Supabase is configured
-  const isSupabaseConfigured = () => {
-    return !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
-  };
-
-  // If Supabase is not configured, show a warning
   if (!isSupabaseConfigured()) {
     return (
       <div className="max-w-4xl mx-auto p-4">
@@ -333,7 +309,6 @@ const Satarknity: React.FC = () => {
     );
   }
   
-  // Regular render with the form and incident list
   return (
     <QueryClientProvider client={queryClient}>
       <div className="max-w-4xl mx-auto p-4">
