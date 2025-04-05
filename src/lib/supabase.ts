@@ -13,8 +13,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 // Create a supabase client with error handling
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder-url.supabase.co', // Fallback URL (will cause error if used)
-  supabaseAnonKey || 'placeholder-key' // Fallback key (will cause error if used)
+  supabaseUrl || '', 
+  supabaseAnonKey || ''
 );
 
 // Helper function to check if Supabase is properly configured

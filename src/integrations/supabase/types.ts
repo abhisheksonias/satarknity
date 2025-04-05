@@ -96,6 +96,33 @@ export type Database = {
         }
         Relationships: []
       }
+      satarknity_incidents: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: number
+          location: string | null
+          media_urls: string[] | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: never
+          location?: string | null
+          media_urls?: string[] | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: never
+          location?: string | null
+          media_urls?: string[] | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       trusted_contacts: {
         Row: {
           created_at: string | null
