@@ -4,6 +4,8 @@ import AuthForm from '@/components/AuthForm';
 import Satarknity from '@/components/Satarknity';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
+import bannerImage from './12.png';
+
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -18,12 +20,12 @@ const Index = () => {
             </h1>
             <p className="text-sm text-muted-foreground">Community Safety Alerts</p>
           </div>
-          
+
           {user && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={signOut} 
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={signOut}
               className="flex items-center gap-2"
             >
               <LogOut className="h-4 w-4" /> Sign Out
@@ -31,6 +33,14 @@ const Index = () => {
           )}
         </div>
       </header>
+
+      <div className="container mx-auto px-max-10">
+        <img
+          src={bannerImage}
+          alt="Community Alert Banner"
+          className="w-full h-auto rounded-lg shadow-md"
+        />
+      </div>
 
       <main className="container mx-auto py-6 px-4">
         {user ? <Satarknity /> : <AuthForm />}
